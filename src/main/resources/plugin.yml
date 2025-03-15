@@ -1,0 +1,10 @@
+name: ShulkerVaccuum
+version: '1'
+main: com.shulkerVaccuum.core.ShulkerVaccuum
+api-version: '1.21'
+load: STARTUP
+description: This is a tutorial plugin
+author: nomuffins
+commands:
+  test:
+    description: test command
