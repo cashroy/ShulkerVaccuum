@@ -1,35 +1,29 @@
-ShulkerVaccuum Plugin 
+# ShulkerVaccuum
 
-Overview:
+A Paper plugin for Minecraft **26.3** that adds two special shulker boxes.
 
-The ShulkerVaccuum plugin enhances the functionality of Shulker Boxes in Minecraft by introducing two new types of Shulker Boxes with special behaviors: the Vacuum Shulker Box and the Trash Shulker Box. These custom Shulker Boxes can be crafted through unique recipes and have distinct effects when used in-game.
+| Box | Recipe (shapeless) | In your **off-hand** | In your **main hand** |
+| --- | --- | --- | --- |
+| **Shulker Box of Vacuum** | any shulker box + hopper | Blocks you mine go straight into the box | Items you pick up go into the box |
+| **Shulker Box of Trash** | any shulker box + lava bucket | Blocks you mine are deleted | Items you pick up are deleted |
 
-⸻
+- Any colour of shulker box works, and the crafted box **keeps its colour and contents**.
+- A full Vacuum box hands the rest to your normal inventory, so nothing is lost.
+- Shulker boxes are never stored or deleted, and breaking a chest, barrel or other container is left alone, so a box in your hand can't swallow or destroy a container's contents.
+- You can convert a Vacuum box into a Trash box (or back) by crafting it again with the other item.
+- Boxes made with version 1 of the plugin still work.
 
-1. Custom Shulker Box Recipes:
+## Requirements
 
-The plugin adds two custom Shulker Boxes to the game, each with its own unique functionality:
-	•	Vacuum Shulker Box (Shulker Box of Vacuum)
-	•	Trash Shulker Box (Shulker Box of Trash)
+- Paper **26.3** (or newer 26.x)
+- Java **25** (Paper 26.1+ requires it)
 
-These Shulker Boxes can be crafted through new recipes that use any colored Shulker Box as an ingredient.
+## Building
 
-⸻
+```bash
+mvn package
+```
 
-2. Vacuum Shulker Box:
-	•	Crafting Recipe:
-	•	The Vacuum Shulker Box can be crafted using any colored Shulker Box and a Hopper.
-	•	The Vacuum Shulker Box has custom lore: "Vacuum I", and a persistent data tag that marks it as a “vacuum” Shulker Box.
-	•	Behavior:
-	•	When a player holds a Vacuum Shulker Box in their off-hand, it automatically collects items (such as block drops) that fall on the ground and stores them inside the Shulker Box. This mimics a vacuum-like functionality.
+The plugin jar is written to `target/ShulkerVaccuum-2.0.jar`. Copy it into your server's `plugins` folder and restart.
 
-⸻
-
-3. Trash Shulker Box:
-	•	Crafting Recipe:
-	•	The Trash Shulker Box can be crafted using any colored Shulker Box and a Lava Bucket.
-	•	The Trash Shulker Box has custom lore: "Trash I", and a persistent data tag that marks it as a “trash” Shulker Box.
-	•	Behavior:
-	•	When a player holds a Trash Shulker Box in their off-hand, it automatically discards any items (block drops) that fall on the ground without storing them. This simulates an auto-delete functionality for unwanted items.
-
-⸻
+If Maven can't find the Paper API version, set `paper.version` in `pom.xml` to the newest `26.3.build.N` listed on Paper's repository (see the [Paper project setup docs](https://docs.papermc.io/paper/dev/project-setup/)).

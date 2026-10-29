@@ -6,43 +6,30 @@
 
   <groupId>com</groupId>
   <artifactId>ShulkerVaccuum</artifactId>
-  <version>1</version>
+  <version>2.0</version>
   <packaging>jar</packaging>
 
   <name>ShulkerVaccuum</name>
 
   <properties>
-    <java.version>21</java.version>
+    <!-- Paper 26.1 and newer need Java 25 -->
+    <java.version>25</java.version>
+    <!-- Paper 26.x API builds are versioned 26.3.build.N-channel; see https://docs.papermc.io/paper/dev/project-setup/ -->
+    <paper.version>26.3.build.142-beta</paper.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <revision>${maven.build.timestamp}</revision>
-    <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
   </properties>
 
   <build>
     <defaultGoal>clean package</defaultGoal>
+    <finalName>ShulkerVaccuum-${project.version}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>3.14.0</version>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-
+          <release>${java.version}</release>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
     <resources>
@@ -54,13 +41,9 @@
   </build>
 
   <repositories>
-      <repository>
-        <id>papermc-repo</id>
-        <url>https://repo.papermc.io/repository/maven-public/</url>
-      </repository>
     <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/groups/public/</url>
+      <id>papermc-repo</id>
+      <url>https://repo.papermc.io/repository/maven-public/</url>
     </repository>
   </repositories>
 
@@ -68,7 +51,7 @@
     <dependency>
       <groupId>io.papermc.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>1.21.4-R0.1-SNAPSHOT</version>
+      <version>${paper.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

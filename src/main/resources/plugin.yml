@@ -1,10 +1,6 @@
 name: ShulkerVaccuum
-version: '1'
+version: '${project.version}'
 main: com.shulkerVaccuum.core.ShulkerVaccuum
-api-version: '1.21'
-load: STARTUP
-description: This is a tutorial plugin
+api-version: '26.3'
+description: Vacuum and Trash shulker boxes that collect or delete drops.
 author: nomuffins
-commands:
-  test:
-    description: test command
