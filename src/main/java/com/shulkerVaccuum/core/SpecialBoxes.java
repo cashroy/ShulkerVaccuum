@@ -5,10 +5,12 @@ import org.bukkit.Tag;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /** Recognises, creates and fills Vacuum and Trash shulker boxes. */
@@ -16,6 +18,11 @@ public final class SpecialBoxes {
     // Tags written by version 1 of the plugin, so boxes crafted back then keep working.
     private static final NamespacedKey LEGACY_VACUUM = new NamespacedKey("shulker_vacuum", "vacuum");
     private static final NamespacedKey LEGACY_TRASH = new NamespacedKey("shulker_trash", "trash");
+
+    // Custom item models only exist on Minecraft 1.21.4+, so they're looked up at runtime.
+    // On older servers these are null and the boxes keep the normal shulker box look.
+    private static final Method GET_ITEM_MODEL = itemMetaMethod("getItemModel");
+    private static final Method SET_ITEM_MODEL = itemMetaMethod("setItemModel", NamespacedKey.class);
 
     private final Plugin plugin;
     private final NamespacedKey typeKey;
@@ -35,10 +42,28 @@ public final class SpecialBoxes {
      * Returns true if the item was changed.
      */
     public boolean applyModel(ItemStack box, BoxType type) {
-        NamespacedKey model = modelKey(type);
-        if (model.equals(box.getItemMeta().getItemModel())) return false;
-        box.editMeta(meta -> meta.setItemModel(model));
+        if (SET_ITEM_MODEL == null || GET_ITEM_MODEL == null) return false;
+        ItemMeta meta = box.getItemMeta();
+        if (meta == null || modelKey(type).equals(invoke(GET_ITEM_MODEL, meta))) return false;
+        invoke(SET_ITEM_MODEL, meta, modelKey(type));
+        box.setItemMeta(meta);
         return true;
+    }
+
+    private static Method itemMetaMethod(String name, Class<?>... parameters) {
+        try {
+            return ItemMeta.class.getMethod(name, parameters);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    private static Object invoke(Method method, ItemMeta meta, Object... arguments) {
+        try {
+            return method.invoke(meta, arguments);
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
     }
 
     public static boolean isShulkerBox(ItemStack item) {
@@ -64,15 +89,16 @@ public final class SpecialBoxes {
     public ItemStack mark(ItemStack box, BoxType type) {
         ItemStack result = box.clone();
         result.setAmount(1);
-        result.editMeta(meta -> {
-            PersistentDataContainer data = meta.getPersistentDataContainer();
-            data.remove(LEGACY_VACUUM);
-            data.remove(LEGACY_TRASH);
-            data.set(typeKey, PersistentDataType.STRING, type.id);
-            meta.setItemModel(modelKey(type));
-            meta.displayName(type.displayName());
-            meta.lore(type.lore());
-        });
+        ItemMeta meta = result.getItemMeta();
+        if (meta == null) return result;
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        data.remove(LEGACY_VACUUM);
+        data.remove(LEGACY_TRASH);
+        data.set(typeKey, PersistentDataType.STRING, type.id);
+        meta.setDisplayName(type.displayName());
+        meta.setLore(type.lore());
+        result.setItemMeta(meta);
+        applyModel(result, type);
         return result;
     }
 

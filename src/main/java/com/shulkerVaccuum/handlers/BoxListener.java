@@ -2,7 +2,6 @@ package com.shulkerVaccuum.handlers;
 
 import com.shulkerVaccuum.core.BoxType;
 import com.shulkerVaccuum.core.SpecialBoxes;
-import org.bukkit.Sound;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -125,9 +124,10 @@ public final class BoxListener implements Listener {
 
     private static void feedback(Player player, BoxType type) {
         if (type == BoxType.TRASH) {
-            player.playSound(player.getLocation(), Sound.BLOCK_LAVA_EXTINGUISH, 0.15f, 1.8f);
+            // Sound IDs as text: the Sound enum changed type in 1.21.3, text works on every version.
+            player.playSound(player.getLocation(), "minecraft:block.lava.extinguish", 0.15f, 1.8f);
         } else {
-            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.2f, 1.6f);
+            player.playSound(player.getLocation(), "minecraft:entity.item.pickup", 0.2f, 1.6f);
         }
     }
 }

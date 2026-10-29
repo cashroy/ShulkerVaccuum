@@ -1,6 +1,6 @@
 # ShulkerVaccuum
 
-A Paper plugin for Minecraft **26.3** that adds two special shulker boxes.
+A plugin for Minecraft **1.17 to 26.3** (Spigot, Paper and Purpur) that adds two special shulker boxes.
 
 | Box | Recipe (shapeless) | In your **off-hand** | In your **main hand** |
 | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ Get the latest `ShulkerVaccuum-*.jar` (and the optional texture pack) from [Rele
 
 ## Textures
 
-The boxes have their own look in your inventory and hands (a placed box still shows as a normal shulker box of its colour):
+On Minecraft **1.21.4 and newer**, the boxes have their own look in your inventory and hands (a placed box still shows as a normal shulker box of its colour). Older versions show the normal shulker box look.
 
 ![Vacuum and Trash box textures: side, top and bottom](docs/textures.png)
 
@@ -27,7 +27,7 @@ The textures come from a small resource pack, `ShulkerVaccuum-pack.zip`, in this
 
 ```properties
 resource-pack=https://raw.githubusercontent.com/cashroy/ShulkerVaccuum/main/ShulkerVaccuum-pack.zip
-resource-pack-sha1=54a885f62a2117b02fccf38fa44cd8aa750a2a29
+resource-pack-sha1=1e2161df1b22b0e35fab1bb83629c1eeb8d25b9a
 require-resource-pack=false
 ```
 
@@ -37,8 +37,8 @@ If you change anything in `resourcepack/`, rebuild the zip with `python3 tools/b
 
 ## Requirements
 
-- Paper **26.3** (or newer 26.x)
-- Java **25** (Paper 26.1+ requires it)
+- Spigot, Paper or Purpur, Minecraft **1.17 to 26.3**
+- Java 16 or newer (whatever your server version already needs)
 
 ## Building
 
@@ -46,13 +46,17 @@ If you change anything in `resourcepack/`, rebuild the zip with `python3 tools/b
 mvn package
 ```
 
-The plugin jar is written to `target/ShulkerVaccuum-2.0.jar`. Copy it into your server's `plugins` folder and restart.
+This builds `target/ShulkerVaccuum-<version>.jar` against the oldest supported API (Spigot 1.17.1) so it runs on every supported version. To check it also compiles against the newest Paper API:
 
-If Maven can't find the Paper API version, set `paper.version` in `pom.xml` to the newest `26.3.build.N` listed on Paper's repository (see the [Paper project setup docs](https://docs.papermc.io/paper/dev/project-setup/)).
+```bash
+mvn compile -Djava.version=25 -Dapi.groupId=io.papermc.paper -Dapi.artifactId=paper-api -Dapi.version=26.3.build.142-beta
+```
+
+GitHub Actions runs both on every push.
 
 ## Releasing a new version
 
-Bump `<version>` in `pom.xml`, update `.github/release-notes.md`, and push to `main`. GitHub Actions builds the jar and publishes the release (and the Modrinth version, once `MODRINTH_TOKEN` and `MODRINTH_PROJECT_ID` are set in the repo's Actions settings).
+Bump `<version>` in `pom.xml`, update `.github/release-notes.md`, and push to `main`. To support a newer Minecraft version, raise `MC_MAX` in `.github/workflows/build.yml` (and the Paper API version in the compat job) once you've tested it. GitHub Actions builds the jar and publishes the release (and the Modrinth version, once `MODRINTH_TOKEN` and `MODRINTH_PROJECT_ID` are set in the repo's Actions settings).
 
 ## License
 

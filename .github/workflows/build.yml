@@ -13,6 +13,11 @@ on:
 permissions:
   contents: write
 
+# Minecraft versions the plugin supports (oldest and newest). Modrinth lists every release in between.
+env:
+  MC_MIN: '1.17'
+  MC_MAX: '26.3'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,9 +35,23 @@ jobs:
           name: ShulkerVaccuum
           path: target/ShulkerVaccuum-*.jar
 
+  # The released jar is built against the oldest API. This makes sure the same code
+  # still compiles against the newest Paper API, so nothing it uses has been removed.
+  compat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Compile against Paper 26.3
+        run: mvn -B compile -Djava.version=25 -Dapi.groupId=io.papermc.paper -Dapi.artifactId=paper-api -Dapi.version=26.3.build.142-beta
+
   release:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, compat]
     runs-on: ubuntu-latest
     env:
       MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
@@ -92,15 +111,23 @@ jobs:
             exit 0
           fi
           jar="$(ls dist/*.jar | head -n 1)"
+          # Every full release from MC_MIN to MC_MAX, using Modrinth's own version list.
+          game_versions="$(curl -sS --fail -H "User-Agent: $ua" https://api.modrinth.com/v2/tag/game_version \
+            | jq -c --arg min "$MC_MIN" --arg max "$MC_MAX" '
+                (map(select(.version == $min))[0].date) as $from
+                | (map(select(.version == $max))[0].date) as $to
+                | [.[] | select(.version_type == "release" and .date >= $from and .date <= $to) | .version]')"
+          echo "Minecraft versions: $game_versions"
+          [ "$(jq length <<<"$game_versions")" -gt 0 ] || { echo "No game versions found between $MC_MIN and $MC_MAX"; exit 1; }
           # Written to a file: curl -F would treat any ';' in the release notes as a separator.
-          jq -n --arg v "$version" --arg project "$MODRINTH_PROJECT_ID" --rawfile notes .github/release-notes.md '{
+          jq -n --arg v "$version" --arg project "$MODRINTH_PROJECT_ID" --argjson games "$game_versions" --rawfile notes .github/release-notes.md '{
             name: ("ShulkerVaccuum " + $v),
             version_number: $v,
             changelog: $notes,
             dependencies: [],
-            game_versions: ["26.3"],
+            game_versions: $games,
             version_type: "beta",
-            loaders: ["paper", "purpur"],
+            loaders: ["bukkit", "spigot", "paper", "purpur"],
             featured: true,
             project_id: $project,
             file_parts: ["jar"],

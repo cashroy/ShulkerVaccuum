@@ -1,6 +1,6 @@
 name: ShulkerVaccuum
 version: '${project.version}'
 main: com.shulkerVaccuum.core.ShulkerVaccuum
-api-version: '26.3'
+api-version: '1.17'
 description: Vacuum and Trash shulker boxes that collect or delete drops.
 author: nomuffins

@@ -1,7 +1,12 @@
 {
   "pack": {
     "description": "ShulkerVaccuum: Vacuum and Trash boxes",
-    "min_format": 97,
+    "pack_format": 46,
+    "supported_formats": [
+      46,
+      999
+    ],
+    "min_format": 46,
     "max_format": 999
   }
 }

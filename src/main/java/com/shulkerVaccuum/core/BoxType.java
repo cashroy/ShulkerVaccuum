@@ -1,8 +1,6 @@
 package com.shulkerVaccuum.core;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.ChatColor;
 
 import java.util.List;
 
@@ -32,18 +30,19 @@ public enum BoxType {
         this.mainHandHint = mainHandHint;
     }
 
-    Component displayName() {
-        return plain(name, NamedTextColor.GOLD);
+    // Plain Bukkit text (works on Spigot as well as Paper). RESET first so the name isn't italic.
+    String displayName() {
+        return plain(name, ChatColor.GOLD);
     }
 
-    List<Component> lore() {
+    List<String> lore() {
         return List.of(
-                plain(level, NamedTextColor.GRAY),
-                plain(offHandHint, NamedTextColor.DARK_GRAY),
-                plain(mainHandHint, NamedTextColor.DARK_GRAY));
+                plain(level, ChatColor.GRAY),
+                plain(offHandHint, ChatColor.DARK_GRAY),
+                plain(mainHandHint, ChatColor.DARK_GRAY));
     }
 
-    private static Component plain(String text, NamedTextColor color) {
-        return Component.text(text, color).decoration(TextDecoration.ITALIC, false);
+    private static String plain(String text, ChatColor color) {
+        return ChatColor.RESET.toString() + color + text;
     }
 }
