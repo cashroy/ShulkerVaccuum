@@ -17,10 +17,28 @@ public final class SpecialBoxes {
     private static final NamespacedKey LEGACY_VACUUM = new NamespacedKey("shulker_vacuum", "vacuum");
     private static final NamespacedKey LEGACY_TRASH = new NamespacedKey("shulker_trash", "trash");
 
+    private final Plugin plugin;
     private final NamespacedKey typeKey;
 
     public SpecialBoxes(Plugin plugin) {
+        this.plugin = plugin;
         this.typeKey = new NamespacedKey(plugin, "box_type");
+    }
+
+    /** The resource-pack model for a box type, e.g. shulkervaccuum:vacuum_box. */
+    private NamespacedKey modelKey(BoxType type) {
+        return new NamespacedKey(plugin, type.model);
+    }
+
+    /**
+     * Gives a box its custom model if it doesn't have it yet (boxes made before textures existed).
+     * Returns true if the item was changed.
+     */
+    public boolean applyModel(ItemStack box, BoxType type) {
+        NamespacedKey model = modelKey(type);
+        if (model.equals(box.getItemMeta().getItemModel())) return false;
+        box.editMeta(meta -> meta.setItemModel(model));
+        return true;
     }
 
     public static boolean isShulkerBox(ItemStack item) {
@@ -51,6 +69,7 @@ public final class SpecialBoxes {
             data.remove(LEGACY_VACUUM);
             data.remove(LEGACY_TRASH);
             data.set(typeKey, PersistentDataType.STRING, type.id);
+            meta.setItemModel(modelKey(type));
             meta.displayName(type.displayName());
             meta.lore(type.lore());
         });

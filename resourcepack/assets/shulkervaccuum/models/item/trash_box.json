@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "shulkervaccuum:item/trash_box_side",
+    "north": "shulkervaccuum:item/trash_box_side",
+    "south": "shulkervaccuum:item/trash_box_side",
+    "east": "shulkervaccuum:item/trash_box_side",
+    "west": "shulkervaccuum:item/trash_box_side",
+    "up": "shulkervaccuum:item/trash_box_top",
+    "down": "shulkervaccuum:item/trash_box_bottom"
+  }
+}

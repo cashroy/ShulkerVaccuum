@@ -11,6 +11,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -37,7 +38,9 @@ public final class BoxListener implements Listener {
         PlayerInventory inventory = player.getInventory();
         ItemStack box = inventory.getItemInOffHand();
         BoxType type = boxes.typeOf(box);
-        if (type == null || event.getBlockState() instanceof Container) return;
+        if (type == null) return;
+        if (boxes.applyModel(box, type)) inventory.setItemInOffHand(box);
+        if (event.getBlockState() instanceof Container) return;
 
         boolean handled = false;
         Iterator<Item> drops = event.getItems().iterator();
@@ -81,6 +84,7 @@ public final class BoxListener implements Listener {
         ItemStack box = inventory.getItemInMainHand();
         BoxType type = boxes.typeOf(box);
         if (type == null) return;
+        if (boxes.applyModel(box, type)) inventory.setItemInMainHand(box);
 
         Item entity = event.getItem();
         ItemStack stack = entity.getItemStack();
@@ -106,6 +110,17 @@ public final class BoxListener implements Listener {
             entity.setItemStack(leftover);
         }
         feedback(player, type);
+    }
+
+    /** Upgrade boxes crafted before the textures existed, so they show the custom model. */
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        PlayerInventory inventory = event.getPlayer().getInventory();
+        ItemStack[] items = inventory.getContents();
+        for (int slot = 0; slot < items.length; slot++) {
+            BoxType type = boxes.typeOf(items[slot]);
+            if (type != null && boxes.applyModel(items[slot], type)) inventory.setItem(slot, items[slot]);
+        }
     }
 
     private static void feedback(Player player, BoxType type) {

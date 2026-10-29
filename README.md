@@ -13,6 +13,24 @@ A Paper plugin for Minecraft **26.3** that adds two special shulker boxes.
 - You can convert a Vacuum box into a Trash box (or back) by crafting it again with the other item.
 - Boxes made with version 1 of the plugin still work.
 
+## Textures
+
+The boxes have their own look in your inventory and hands (a placed box still shows as a normal shulker box of its colour):
+
+![Vacuum and Trash box textures: side, top and bottom](docs/textures.png)
+
+The textures come from a small resource pack, `ShulkerVaccuum-pack.zip`, in this repo. To have the server send it to everyone, add these lines to `server.properties` and restart:
+
+```properties
+resource-pack=https://raw.githubusercontent.com/cashroy/ShulkerVaccuum/main/ShulkerVaccuum-pack.zip
+resource-pack-sha1=54a885f62a2117b02fccf38fa44cd8aa750a2a29
+require-resource-pack=false
+```
+
+Players accept the pack when they join. (Or drop the zip into your own `.minecraft/resourcepacks` folder instead.) Boxes crafted before the textures were added switch to the new look when you join or use them.
+
+If you change anything in `resourcepack/`, rebuild the zip with `python3 tools/build-pack.py`, then update `resource-pack-sha1` to the hash it prints.
+
 ## Requirements
 
 - Paper **26.3** (or newer 26.x)
