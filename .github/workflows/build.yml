@@ -1,9 +1,17 @@
 name: Build plugin
 
+# Every push to main builds the jar (downloadable from the run's Artifacts).
+# Pushing a tag like v2.0 also publishes a GitHub release with the jar and resource pack,
+# and, once MODRINTH_TOKEN (secret) and MODRINTH_PROJECT_ID (variable) are set, a Modrinth version.
+
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -21,3 +29,49 @@ jobs:
         with:
           name: ShulkerVaccuum
           path: target/ShulkerVaccuum-*.jar
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+      MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ShulkerVaccuum
+          path: dist
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/*.jar ShulkerVaccuum-pack.zip \
+            --title "ShulkerVaccuum ${GITHUB_REF_NAME#v}" \
+            --notes-file .github/release-notes.md
+
+      - name: Modrinth
+        if: env.MODRINTH_TOKEN != '' && env.MODRINTH_PROJECT_ID != ''
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          jar="$(ls dist/*.jar | head -n 1)"
+          data="$(jq -n --arg v "$version" --arg project "$MODRINTH_PROJECT_ID" --rawfile notes .github/release-notes.md '{
+            name: ("ShulkerVaccuum " + $v),
+            version_number: $v,
+            changelog: $notes,
+            dependencies: [],
+            game_versions: ["26.3"],
+            version_type: "beta",
+            loaders: ["paper", "purpur"],
+            featured: true,
+            project_id: $project,
+            file_parts: ["jar"],
+            primary_file: "jar"
+          }')"
+          curl --fail-with-body -sS -X POST https://api.modrinth.com/v2/version \
+            -H "Authorization: $MODRINTH_TOKEN" \
+            -H "User-Agent: cashroy/ShulkerVaccuum (GitHub Actions)" \
+            -F "data=$data" \
+            -F "jar=@$jar;type=application/java-archive"
