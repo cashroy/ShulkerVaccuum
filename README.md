@@ -13,6 +13,10 @@ A Paper plugin for Minecraft **26.3** that adds two special shulker boxes.
 - You can convert a Vacuum box into a Trash box (or back) by crafting it again with the other item.
 - Boxes made with version 1 of the plugin still work.
 
+## Download
+
+Get the latest `ShulkerVaccuum-*.jar` (and the optional texture pack) from [Releases](https://github.com/cashroy/ShulkerVaccuum/releases). Drop the jar into your server's `plugins` folder and restart.
+
 ## Textures
 
 The boxes have their own look in your inventory and hands (a placed box still shows as a normal shulker box of its colour):
@@ -45,3 +49,11 @@ mvn package
 The plugin jar is written to `target/ShulkerVaccuum-2.0.jar`. Copy it into your server's `plugins` folder and restart.
 
 If Maven can't find the Paper API version, set `paper.version` in `pom.xml` to the newest `26.3.build.N` listed on Paper's repository (see the [Paper project setup docs](https://docs.papermc.io/paper/dev/project-setup/)).
+
+## Releasing a new version
+
+Bump `<version>` in `pom.xml`, update `.github/release-notes.md`, and push to `main`. GitHub Actions builds the jar and publishes the release (and the Modrinth version, once `MODRINTH_TOKEN` and `MODRINTH_PROJECT_ID` are set in the repo's Actions settings).
+
+## License
+
+MIT, see [LICENSE](LICENSE).

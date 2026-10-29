@@ -54,7 +54,7 @@ jobs:
           fi
 
       - uses: actions/download-artifact@v4
-        if: steps.version.outputs.new == 'true'
+        if: steps.version.outputs.new == 'true' || (env.MODRINTH_TOKEN != '' && env.MODRINTH_PROJECT_ID != '')
         with:
           name: ShulkerVaccuum
           path: dist
@@ -70,12 +70,20 @@ jobs:
             --title "ShulkerVaccuum $VERSION" \
             --notes-file .github/release-notes.md
 
+      # Publishes any version Modrinth doesn't have yet, so adding the token later
+      # still uploads the current release (re-run from Actions > Build plugin > Run workflow).
       - name: Modrinth
-        if: steps.version.outputs.new == 'true' && env.MODRINTH_TOKEN != '' && env.MODRINTH_PROJECT_ID != ''
+        if: env.MODRINTH_TOKEN != '' && env.MODRINTH_PROJECT_ID != ''
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           version="$VERSION"
+          ua="cashroy/ShulkerVaccuum (GitHub Actions)"
+          if curl -sS --fail -H "User-Agent: $ua" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT_ID/version" \
+              | jq -e --arg v "$version" 'any(.[]; .version_number == $v)' >/dev/null; then
+            echo "Modrinth already has $version."
+            exit 0
+          fi
           jar="$(ls dist/*.jar | head -n 1)"
           data="$(jq -n --arg v "$version" --arg project "$MODRINTH_PROJECT_ID" --rawfile notes .github/release-notes.md '{
             name: ("ShulkerVaccuum " + $v),
@@ -92,6 +100,6 @@ jobs:
           }')"
           curl --fail-with-body -sS -X POST https://api.modrinth.com/v2/version \
             -H "Authorization: $MODRINTH_TOKEN" \
-            -H "User-Agent: cashroy/ShulkerVaccuum (GitHub Actions)" \
+            -H "User-Agent: $ua" \
             -F "data=$data" \
             -F "jar=@$jar;type=application/java-archive"
