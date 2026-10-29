@@ -70,20 +70,25 @@ jobs:
             --title "ShulkerVaccuum $VERSION" \
             --notes-file .github/release-notes.md
 
-      # Publishes any version Modrinth doesn't have yet, so adding the token later
-      # still uploads the current release (re-run from Actions > Build plugin > Run workflow).
+      # Uploads a version to Modrinth when it's a new GitHub release, or when Modrinth can be
+      # checked and doesn't have it yet. If the check fails, it only uploads new releases,
+      # so ordinary pushes never create duplicate Modrinth versions.
       - name: Modrinth
         if: env.MODRINTH_TOKEN != '' && env.MODRINTH_PROJECT_ID != ''
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          NEW_RELEASE: ${{ steps.version.outputs.new }}
         run: |
           version="$VERSION"
           ua="cashroy/ShulkerVaccuum (GitHub Actions)"
-          # Authorised so unapproved (draft) projects are visible too.
-          if curl -sS --fail -H "User-Agent: $ua" -H "Authorization: $MODRINTH_TOKEN" \
-              "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT_ID/version" \
-              | jq -e --arg v "$version" 'any(.[]; .version_number == $v)' >/dev/null; then
-            echo "Modrinth already has $version."
+          if versions="$(curl -sS --fail -H "User-Agent: $ua" -H "Authorization: $MODRINTH_TOKEN" \
+              "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT_ID/version")"; then
+            if jq -e --arg v "$version" 'any(.[]; .version_number == $v)' <<<"$versions" >/dev/null; then
+              echo "Modrinth already has $version."
+              exit 0
+            fi
+          elif [ "$NEW_RELEASE" != "true" ]; then
+            echo "Couldn't list Modrinth versions and $version isn't a new release; not uploading."
             exit 0
           fi
           jar="$(ls dist/*.jar | head -n 1)"
