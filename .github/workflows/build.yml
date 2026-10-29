@@ -79,13 +79,16 @@ jobs:
         run: |
           version="$VERSION"
           ua="cashroy/ShulkerVaccuum (GitHub Actions)"
-          if curl -sS --fail -H "User-Agent: $ua" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT_ID/version" \
+          # Authorised so unapproved (draft) projects are visible too.
+          if curl -sS --fail -H "User-Agent: $ua" -H "Authorization: $MODRINTH_TOKEN" \
+              "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT_ID/version" \
               | jq -e --arg v "$version" 'any(.[]; .version_number == $v)' >/dev/null; then
             echo "Modrinth already has $version."
             exit 0
           fi
           jar="$(ls dist/*.jar | head -n 1)"
-          data="$(jq -n --arg v "$version" --arg project "$MODRINTH_PROJECT_ID" --rawfile notes .github/release-notes.md '{
+          # Written to a file: curl -F would treat any ';' in the release notes as a separator.
+          jq -n --arg v "$version" --arg project "$MODRINTH_PROJECT_ID" --rawfile notes .github/release-notes.md '{
             name: ("ShulkerVaccuum " + $v),
             version_number: $v,
             changelog: $notes,
@@ -97,9 +100,9 @@ jobs:
             project_id: $project,
             file_parts: ["jar"],
             primary_file: "jar"
-          }')"
+          }' > modrinth-version.json
           curl --fail-with-body -sS -X POST https://api.modrinth.com/v2/version \
             -H "Authorization: $MODRINTH_TOKEN" \
             -H "User-Agent: $ua" \
-            -F "data=$data" \
+            -F "data=<modrinth-version.json;type=application/json" \
             -F "jar=@$jar;type=application/java-archive"
