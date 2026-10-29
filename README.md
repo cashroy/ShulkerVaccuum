@@ -15,25 +15,37 @@ A plugin for Minecraft **1.17 to 26.3** (Spigot, Paper and Purpur) that adds two
 
 ## Download
 
-Get the latest `ShulkerVaccuum-*.jar` (and the optional texture pack) from [Releases](https://github.com/cashroy/ShulkerVaccuum/releases). Drop the jar into your server's `plugins` folder and restart.
+Get the latest `ShulkerVaccuum-*.jar` from [Releases](https://github.com/cashroy/ShulkerVaccuum/releases). Drop the jar into your server's `plugins` folder and restart.
 
-## Textures
+## Textures and placed boxes
 
-On Minecraft **1.21.4 and newer**, the boxes have their own look in your inventory and hands (a placed box still shows as a normal shulker box of its colour). Older versions show the normal shulker box look.
+On Minecraft **1.21.4 and newer** the boxes get their own look, in your inventory and hands and when placed. Opening a placed box lifts and twists its custom lid, just like a shulker box:
+
+![Placed Vacuum and Trash boxes, closed and open](docs/placed.png)
 
 ![Vacuum and Trash box textures: side, top and bottom](docs/textures.png)
 
-The textures come from a small resource pack, `ShulkerVaccuum-pack.zip`, in this repo. To have the server send it to everyone, add these lines to `server.properties` and restart:
+How it works: a placed Vacuum or Trash box is still a real shulker box underneath, so storage, hoppers, mining, pistons and explosions all behave normally. The plugin covers it with a custom 3D model (two display entities, the base and the lid) and animates the lid when someone opens it. Older Minecraft versions show the normal shulker box look; everything else still works.
+
+**The texture pack is sent automatically.** The plugin adds its pack for each player as they join, alongside any other server pack (for example The Sift's), so there's nothing to set in `server.properties`. Players are asked to accept it. If you'd rather make it compulsory, or turn off the placed-box look, see `plugins/ShulkerVaccuum/config.yml`:
+
+```yaml
+placed-skins: true          # custom look on placed boxes (players without the pack would see a missing-texture cube)
+resource-pack:
+  send: true                # send the pack to players (1.21.4+)
+  required: false           # true = players must accept it
+```
+
+Prefer `server.properties` instead? Set `resource-pack.send: false` and use:
 
 ```properties
 resource-pack=https://raw.githubusercontent.com/cashroy/ShulkerVaccuum/main/ShulkerVaccuum-pack.zip
-resource-pack-sha1=1e2161df1b22b0e35fab1bb83629c1eeb8d25b9a
-require-resource-pack=false
+resource-pack-sha1=9321f0c028efabd28a1e38b3a70ded81501d99e9
 ```
 
-Players accept the pack when they join. (Or drop the zip into your own `.minecraft/resourcepacks` folder instead.) Boxes crafted before the textures were added switch to the new look when you join or use them.
+If you change anything in `resourcepack/`, run `python3 tools/build-pack.py`. It rebuilds the zip and updates the hash in `pom.xml` and this README.
 
-If you change anything in `resourcepack/`, rebuild the zip with `python3 tools/build-pack.py`, then update `resource-pack-sha1` to the hash it prints.
+**Works with The Sift and other custom-block plugins.** The Sift draws its blocks over note blocks; ShulkerVaccuum uses display entities over real shulker boxes, so they don't clash.
 
 ## Requirements
 
@@ -46,17 +58,24 @@ If you change anything in `resourcepack/`, rebuild the zip with `python3 tools/b
 mvn package
 ```
 
-This builds `target/ShulkerVaccuum-<version>.jar` against the oldest supported API (Spigot 1.17.1) so it runs on every supported version. To check it also compiles against the newest Paper API:
+The jar ends up at `plugin/target/ShulkerVaccuum-<version>.jar`. The project has three parts:
+
+- `common`: the plugin itself, built against the **oldest** API (Spigot 1.17.1, Java 16) so the jar loads on every supported version.
+- `skins`: the placed-box look and pack sending, built against Spigot 1.21.4. It's only loaded on servers that support it.
+- `plugin`: packs both into one jar, with `plugin.yml` and `config.yml`.
+
+To check everything also compiles against the newest Paper API:
 
 ```bash
-mvn compile -Djava.version=25 -Dapi.groupId=io.papermc.paper -Dapi.artifactId=paper-api -Dapi.version=26.3.build.142-beta
+mvn compile -Dcommon.java=25 -Dcommon.api.groupId=io.papermc.paper -Dcommon.api.artifactId=paper-api -Dcommon.api.version=26.3.build.142-beta \
+            -Dskins.java=25 -Dskins.api.groupId=io.papermc.paper -Dskins.api.artifactId=paper-api -Dskins.api.version=26.3.build.142-beta
 ```
 
 GitHub Actions runs both on every push.
 
 ## Releasing a new version
 
-Bump `<version>` in `pom.xml`, update `.github/release-notes.md`, and push to `main`. To support a newer Minecraft version, raise `MC_MAX` in `.github/workflows/build.yml` (and the Paper API version in the compat job) once you've tested it. GitHub Actions builds the jar and publishes the release (and the Modrinth version, once `MODRINTH_TOKEN` and `MODRINTH_PROJECT_ID` are set in the repo's Actions settings).
+Bump `<version>` in the four `pom.xml` files (root, `common`, `skins`, `plugin`), update `.github/release-notes.md`, and push to `main`. To support a newer Minecraft version, raise `MC_MAX` in `.github/workflows/build.yml` (and the Paper API version in the compat job) once you've tested it. GitHub Actions builds the jar and publishes the release (and the Modrinth version, once `MODRINTH_TOKEN` and `MODRINTH_PROJECT_ID` are set in the repo's Actions settings).
 
 ## License
 

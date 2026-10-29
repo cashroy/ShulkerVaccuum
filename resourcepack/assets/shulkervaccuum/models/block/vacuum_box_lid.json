@@ -1,0 +1,79 @@
+{
+  "textures": {
+    "side": "shulkervaccuum:item/vacuum_box_side",
+    "top": "shulkervaccuum:item/vacuum_box_top",
+    "bottom": "shulkervaccuum:item/vacuum_box_bottom",
+    "inside": "shulkervaccuum:item/vacuum_box_inside",
+    "particle": "shulkervaccuum:item/vacuum_box_side"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        4,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ],
+          "texture": "#side"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ],
+          "texture": "#side"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ],
+          "texture": "#side"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            12
+          ],
+          "texture": "#side"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#top"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#inside"
+        }
+      }
+    }
+  ]
+}

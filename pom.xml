@@ -5,46 +5,42 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com</groupId>
-  <artifactId>ShulkerVaccuum</artifactId>
-  <version>2.1</version>
-  <packaging>jar</packaging>
+  <artifactId>ShulkerVaccuum-parent</artifactId>
+  <version>2.2</version>
+  <packaging>pom</packaging>
 
   <name>ShulkerVaccuum</name>
 
-  <properties>
-    <!--
-      The released jar is built against the OLDEST supported API (Spigot 1.17.1) as Java 16 bytecode,
-      so the same jar loads on Spigot, Paper and Purpur from 1.17 up to 26.3.
-      CI also compiles against the newest API to catch anything removed since:
-        mvn package -Djava.version=25 -Dapi.groupId=io.papermc.paper -Dapi.artifactId=paper-api -Dapi.version=26.3.build.142-beta
-    -->
-    <java.version>16</java.version>
-    <api.groupId>org.spigotmc</api.groupId>
-    <api.artifactId>spigot-api</api.artifactId>
-    <api.version>1.17.1-R0.1-SNAPSHOT</api.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  <!--
+    common  - the whole plugin, built against the OLDEST API (Spigot 1.17.1) as Java 16 bytecode,
+              so the jar loads on Spigot, Paper and Purpur from 1.17 up to 26.3.
+    skins   - the custom look for placed boxes (display entities + item models). Needs 1.21.4,
+              so it's built separately and only loaded on servers that have those features.
+    plugin  - packs both into the single ShulkerVaccuum-<version>.jar.
 
-  <build>
-    <defaultGoal>clean package</defaultGoal>
-    <finalName>ShulkerVaccuum-${project.version}</finalName>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
-        <configuration>
-          <release>${java.version}</release>
-        </configuration>
-      </plugin>
-    </plugins>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-  </build>
+    CI also compiles everything against the newest Paper API (see .github/workflows/build.yml).
+  -->
+  <modules>
+    <module>common</module>
+    <module>skins</module>
+    <module>plugin</module>
+  </modules>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- SHA-1 of ShulkerVaccuum-pack.zip, written by tools/build-pack.py; goes into config.yml. -->
+    <pack.sha1>9321f0c028efabd28a1e38b3a70ded81501d99e9</pack.sha1>
+
+    <common.java>16</common.java>
+    <common.api.groupId>org.spigotmc</common.api.groupId>
+    <common.api.artifactId>spigot-api</common.api.artifactId>
+    <common.api.version>1.17.1-R0.1-SNAPSHOT</common.api.version>
+
+    <skins.java>21</skins.java>
+    <skins.api.groupId>org.spigotmc</skins.api.groupId>
+    <skins.api.artifactId>spigot-api</skins.api.artifactId>
+    <skins.api.version>1.21.4-R0.1-SNAPSHOT</skins.api.version>
+  </properties>
 
   <repositories>
     <repository>
@@ -57,12 +53,20 @@
     </repository>
   </repositories>
 
-  <dependencies>
-    <dependency>
-      <groupId>${api.groupId}</groupId>
-      <artifactId>${api.artifactId}</artifactId>
-      <version>${api.version}</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.14.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.6.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

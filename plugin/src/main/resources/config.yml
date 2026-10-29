@@ -1,0 +1,19 @@
+# ShulkerVaccuum ${project.version}
+
+# Custom look for PLACED Vacuum and Trash boxes, with an animated lid when they're opened.
+# Needs Minecraft 1.21.4 or newer. Players who decline the resource pack will see a
+# missing-texture cube on placed boxes, so either set resource-pack.required to true,
+# or turn this off.
+placed-skins: true
+
+# Send the ShulkerVaccuum texture pack to players when they join (Minecraft 1.21.4+).
+# It's added alongside any other server pack (for example The Sift's) instead of replacing it,
+# so you don't need to touch server.properties.
+resource-pack:
+  send: true
+  # true = players must accept the pack to stay on the server.
+  required: false
+  prompt: "Textures for ShulkerVaccuum's Vacuum and Trash boxes"
+  # The pack for this version of the plugin. Only change these if you host your own copy.
+  url: "https://github.com/cashroy/ShulkerVaccuum/releases/download/v${project.version}/ShulkerVaccuum-pack.zip"
+  sha1: "${pack.sha1}"

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "shulkervaccuum:block/vacuum_box_lid"
+  }
+}

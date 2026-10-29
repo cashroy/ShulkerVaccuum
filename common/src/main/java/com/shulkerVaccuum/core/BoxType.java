@@ -30,6 +30,11 @@ public enum BoxType {
         this.mainHandHint = mainHandHint;
     }
 
+    /** Base name of this box's models in the resource pack, e.g. "vacuum_box". */
+    public String modelName() {
+        return model;
+    }
+
     // Plain Bukkit text (works on Spigot as well as Paper). RESET first so the name isn't italic.
     String displayName() {
         return plain(name, ChatColor.GOLD);

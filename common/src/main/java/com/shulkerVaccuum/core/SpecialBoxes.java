@@ -2,6 +2,8 @@ package com.shulkerVaccuum.core;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -64,6 +66,33 @@ public final class SpecialBoxes {
         } catch (ReflectiveOperationException e) {
             return null;
         }
+    }
+
+    /** True on servers with custom item models (Minecraft 1.21.4+). */
+    public static boolean itemModelsSupported() {
+        return GET_ITEM_MODEL != null && SET_ITEM_MODEL != null;
+    }
+
+    /**
+     * Remembers on the placed block which special box it is. Needed because older versions
+     * drop an item's hidden tags when it's placed, which turned special boxes back into normal ones.
+     */
+    public void markPlaced(Block block, BoxType type) {
+        if (block.getState() instanceof ShulkerBox shulker) {
+            shulker.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, type.id);
+            shulker.update(false, false);
+        }
+    }
+
+    /** The special type of a placed shulker box block, or null. */
+    public BoxType placedType(BlockState state) {
+        if (!(state instanceof ShulkerBox shulker)) return null;
+        String saved = shulker.getPersistentDataContainer().get(typeKey, PersistentDataType.STRING);
+        if (saved == null) return null;
+        for (BoxType type : BoxType.values()) {
+            if (type.id.equals(saved)) return type;
+        }
+        return null;
     }
 
     public static boolean isShulkerBox(ItemStack item) {

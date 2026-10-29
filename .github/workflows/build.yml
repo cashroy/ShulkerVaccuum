@@ -33,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ShulkerVaccuum
-          path: target/ShulkerVaccuum-*.jar
+          path: plugin/target/ShulkerVaccuum-*.jar
 
   # The released jar is built against the oldest API. This makes sure the same code
   # still compiles against the newest Paper API, so nothing it uses has been removed.
@@ -47,7 +47,10 @@ jobs:
           java-version: '25'
           cache: maven
       - name: Compile against Paper 26.3
-        run: mvn -B compile -Djava.version=25 -Dapi.groupId=io.papermc.paper -Dapi.artifactId=paper-api -Dapi.version=26.3.build.142-beta
+        run: >
+          mvn -B compile
+          -Dcommon.java=25 -Dcommon.api.groupId=io.papermc.paper -Dcommon.api.artifactId=paper-api -Dcommon.api.version=26.3.build.142-beta
+          -Dskins.java=25 -Dskins.api.groupId=io.papermc.paper -Dskins.api.artifactId=paper-api -Dskins.api.version=26.3.build.142-beta
 
   release:
     if: github.ref == 'refs/heads/main'
